@@ -45,89 +45,92 @@
         color: var(--ink);
         font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
         -webkit-font-smoothing: antialiased;
+        overflow: hidden;
       }
       button { font-family: inherit; cursor: pointer; }
-      .wrap { max-width: 860px; margin: 0 auto; padding: 16px 16px 32px; }
+      .wrap { margin: 0; padding: 0; height: 100dvh; box-sizing: border-box; display: flex; flex-direction: column; }
+      button, select { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 
       .ctl:focus-visible, .navbtn:focus-visible, .mode-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 
       /* ---------- Mode toggle ---------- */
       .mode-toggle { display: flex; gap: 8px; background: var(--surface-2); border: 1px solid var(--line); padding: 6px; border-radius: 14px; margin-bottom: 16px; }
       .mode-btn {
-        flex: 1; min-height: 50px; border: none; border-radius: 10px; background: transparent;
-        color: var(--ink-soft); font-size: 16px; font-weight: 700;
+        flex: 1; min-height: 56px; border: none; border-radius: 10px; background: transparent;
+        color: var(--ink-soft); font-size: 17px; font-weight: 700;
       }
       .mode-btn[aria-pressed="true"] { background: var(--navy); color: #fff; }
 
       /* ---------- Play header ---------- */
-      .play-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 18px; margin-bottom: 6px; }
+      .play-head {
+        display: flex; align-items: center; gap: 10px 16px;
+        padding: calc(10px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) 6px calc(14px + env(safe-area-inset-left));
+      }
+      .head-text { flex: 1; min-width: 0; }
       .play-count {
         font-family: "Oswald", sans-serif; font-weight: 600; letter-spacing: .18em;
-        font-size: 12px; text-transform: uppercase; color: var(--ink-soft); width: 100%;
+        font-size: 13px; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 2px;
       }
       h2 {
         font-family: "Oswald", sans-serif; font-weight: 700; text-transform: uppercase;
         font-size: clamp(28px, 5.4vw, 40px); line-height: 1.02; margin: 0;
       }
-      /* ---------- Stage ---------- */
-      .stage { touch-action: pan-y; }
-      .stage-col { width: min(100%, 680px); margin: 0 auto; }
-      /* Rotated horizontal: fill the whole screen — diagram uses the
-         full height on the left, controls sit beside it on the right. */
+      /* ---------- Stage: the diagram fills the whole page ---------- */
+      .stage { touch-action: pan-y; flex: 1; min-height: 0; display: flex; flex-direction: column; }
       @media (orientation: landscape) {
-        .wrap { max-width: 1340px; padding: 8px 12px 16px; }
-        .stage-col { width: 100%; max-width: 1300px; }
-        .mode-toggle { margin-bottom: 8px; padding: 4px; }
-        .mode-btn { min-height: 40px; }
-        .play-head { align-items: center; margin-bottom: 4px; }
-        .play-head .play-count { width: auto; }
         h2 { font-size: 30px; }
-        .field-card {
-          display: grid;
-          grid-template-columns: minmax(0, calc((100dvh - 120px) * 0.7423)) 296px;
-          grid-template-rows: auto auto auto auto 1fr;
-          column-gap: 26px;
-          align-items: start;
-          padding: 14px 16px;
-        }
-        .field-card #diagram { grid-column: 1; grid-row: 1 / 6; }
-        .field-card .target-row { grid-column: 2; grid-row: 1; margin-top: 2px; margin-bottom: 0; }
-        .field-card .qb-row { grid-column: 2; grid-row: 2; margin-top: 10px; margin-bottom: 0; }
-        .field-card .controls { grid-column: 2; grid-row: 3; margin-top: 12px; }
-        .field-card .controls .ctl { padding: 10px 4px; font-size: 15px; min-height: 52px; }
-        .field-card .subs { grid-column: 2; grid-row: 4; margin-top: 12px; }
-        .field-card .status { grid-column: 2; grid-row: 5; }
-        .pager { margin-top: 10px; }
-      }
-      @media (orientation: landscape) and (max-height: 560px) {
-        .field-card { grid-template-columns: minmax(0, calc((100dvh - 104px) * 0.7423)) 264px; }
-        .field-card .controls .ctl { font-size: 14px; min-height: 48px; }
-        h2 { font-size: 24px; }
       }
 
-      .field-card {
-        background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
-        padding: 14px; box-shadow: 0 10px 28px rgba(7, 28, 63, .10);
+      /* One page, everything visible: the diagram takes every bit of
+         space the controls don't use. On wide / landscape screens the
+         controls sit in a column beside it; in portrait they stack
+         underneath it. The SVG's own background is field green, so
+         any letterbox area reads as more field, not empty page. */
+      .main {
+        flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px;
+        padding: 4px calc(12px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));
       }
-      .field-card svg { display: block; width: 100%; height: auto; border-radius: 10px; }
+      .field-card { flex: 1; min-height: 0; display: flex; }
+      #diagram { flex: 1; min-width: 0; min-height: 0; display: flex; }
+      .field-card svg { display: block; width: 100%; height: 100%; border-radius: 12px; background: #1e6b34; }
+      .side { display: flex; flex-direction: column; overflow-y: auto; overscroll-behavior: contain; min-height: 0; max-height: 54%; padding: 2px; }
+      .side > * { flex: none; }
+      @media (orientation: landscape), (min-width: 900px) {
+        .main { flex-direction: row; }
+        .side { width: 350px; flex: none; max-height: none; }
+      }
 
-      .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 0; }
+      /* iPad: everything finger-sized, nothing tiny. */
+      @media (min-width: 700px) {
+        .ctl { min-height: 68px; font-size: 18px; }
+        h2 { font-size: 38px; }
+      }
+      .side .mode-toggle { margin-bottom: 4px; flex: none; }
+      .side .target-row { margin-top: 14px; }
+      .side .target-row.qb-row { margin-top: 0; }
+
+      /* Play / Reset / Mix: one equal row in the control column,
+         always visible on the page with everything else. */
+      .controls {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;
+        margin-top: 14px; flex: none;
+      }
       .ctl {
-        min-height: 56px; padding: 10px 6px; border-radius: 12px; border: none; width: 100%;
-        font-size: 16px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
+        min-height: 64px; padding: 12px 6px; border-radius: 12px; border: none; width: 100%;
+        font-size: 17px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center;
         gap: 6px; white-space: nowrap;
       }
       .ctl.play { background: var(--gold); color: var(--gold-ink); }
       .ctl.play[disabled] { opacity: .55; cursor: default; }
       .ctl.reset, .ctl.mix { background: var(--surface-2); color: var(--ink); border: 1.5px solid var(--line); }
-      .status { margin: 10px 2px 0; font-size: 13.5px; color: var(--ink-soft); min-height: 1.3em; }
+      .status { margin: 10px 2px 0; font-size: 15px; color: var(--ink-soft); min-height: 1.3em; }
 
       /* ---------- Target picker ---------- */
       .target-row { display: flex; align-items: center; gap: 10px; margin-top: 20px; margin-bottom: 12px; }
       .target-row.qb-row { margin-top: 0; }
       .target-row label { font-size: 15px; font-weight: 700; white-space: nowrap; min-width: 54px; }
       .target-row select {
-        flex: 1; min-width: 0; min-height: 52px; padding: 10px 12px; border-radius: 12px;
+        flex: 1; min-width: 0; min-height: 56px; padding: 10px 30px 10px 12px; border-radius: 12px;
         border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink);
         font-family: inherit; font-size: 16px; font-weight: 600;
       }
@@ -139,31 +142,31 @@
       .subs-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
       .subs-head strong { font-size: 15px; }
       .bench-chip {
-        display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px;
+        display: inline-flex; align-items: center; padding: 7px 12px; border-radius: 999px;
         background: var(--surface-2); border: 1.5px solid var(--line);
-        font-size: 13.5px; font-weight: 700; color: var(--ink);
+        font-size: 14.5px; font-weight: 700; color: var(--ink);
       }
-      .bench-empty { font-size: 13.5px; color: var(--ink-soft); }
+      .bench-empty { font-size: 14.5px; color: var(--ink-soft); }
       .sub-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
       .sub-row label { font-size: 13.5px; font-weight: 700; white-space: nowrap; }
       .sub-row select {
-        flex: 1 1 110px; min-width: 0; min-height: 48px; padding: 8px 10px; border-radius: 10px;
+        flex: 1 1 110px; min-width: 0; min-height: 56px; padding: 8px 10px; border-radius: 10px;
         border: 1.5px solid var(--line); background: var(--surface-2); color: var(--ink);
-        font-family: inherit; font-size: 15px; font-weight: 600;
+        font-family: inherit; font-size: 16px; font-weight: 600;
       }
       .sub-row select:focus-visible, .sub-btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
       .sub-arrow { font-weight: 800; color: var(--ink-soft); }
       .sub-btn {
-        min-height: 48px; padding: 10px 18px; border-radius: 10px; border: none; width: 100%;
-        margin-top: 8px; background: var(--navy); color: #fff; font-size: 15px; font-weight: 700;
+        min-height: 56px; padding: 12px 18px; border-radius: 10px; border: none; width: 100%;
+        margin-top: 8px; background: var(--navy); color: #fff; font-size: 16px; font-weight: 700;
       }
       .sub-btn[disabled] { opacity: .45; cursor: default; }
 
       /* ---------- Footer nav ---------- */
       .pager { display: flex; gap: 10px; margin-top: 14px; }
-      .hint { margin: 12px 0 0; text-align: center; font-size: 13px; color: var(--ink-soft); }
+      .hint { margin: 12px 0 0; text-align: center; font-size: 14px; color: var(--ink-soft); }
       .navbtn {
-        min-height: 56px; padding: 10px 20px; border-radius: 12px; font-size: 16px; font-weight: 700;
+        min-height: 60px; padding: 12px 20px; border-radius: 12px; font-size: 17px; font-weight: 700;
         background: var(--navy); color: #fff; border: none; flex: 1;
         display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       }
@@ -184,19 +187,24 @@
   <body>
     <div class="wrap">
       <section class="stage" id="stage" aria-live="polite">
-        <div class="mode-toggle" role="group" aria-label="Offense or defense">
-          <button class="mode-btn" id="btnOffense" type="button" aria-pressed="true">Offense</button>
-          <button class="mode-btn" id="btnDefense" type="button" aria-pressed="false">Defense</button>
-        </div>
         <div class="play-head">
-          <p class="play-count" id="playCount"></p>
-          <h2 id="playName"></h2>
+          <div class="head-text">
+            <p class="play-count" id="playCount"></p>
+            <h2 id="playName"></h2>
+          </div>
         </div>
 
-        <div class="stage-col">
+        <div class="main">
           <div class="field-card">
             <div id="diagram"></div>
-            <div class="target-row">
+          </div>
+
+          <div class="side">
+          <div class="mode-toggle" role="group" aria-label="Offense or defense">
+            <button class="mode-btn" id="btnOffense" type="button" aria-pressed="true">Offense</button>
+            <button class="mode-btn" id="btnDefense" type="button" aria-pressed="false">Defense</button>
+          </div>
+          <div class="target-row">
               <label for="targetSelect">Target</label>
               <select id="targetSelect" aria-label="Choose who gets the ball">
                 <option value="auto" selected>Select</option>
@@ -213,12 +221,12 @@
             <div class="target-row qb-row">
               <label for="qbSelect">QB</label>
               <select id="qbSelect" aria-label="Choose who plays quarterback">
-                <option value="auto" selected>Auto — Luke &amp; Anderson swap</option>
+                <option value="auto" selected>Auto — Luke/Anderson</option>
                 <option value="Luke">Luke</option>
                 <option value="Anderson">Anderson</option>
               </select>
             </div>
-            <div class="controls">
+            <div class="controls" aria-label="Play actions">
               <button class="ctl play" id="btnPlay" type="button">▶&nbsp; Play</button>
               <button class="ctl reset" id="btnReset" type="button">↺&nbsp; Reset</button>
               <button class="ctl mix" id="btnMix" type="button">⇄&nbsp; Mix</button>
@@ -237,14 +245,13 @@
               </div>
               <button class="sub-btn" id="btnSub" type="button">Make Sub</button>
             </div>
-            <p class="status" id="status"></p>
-          </div>
-
+          <p class="status" id="status"></p>
           <div class="pager">
             <button class="navbtn prev" id="btnPrev" type="button">← Prev</button>
             <button class="navbtn" id="btnNext" type="button">Next →</button>
           </div>
           <p class="hint">Swipe left or right to change plays</p>
+          </div>
         </div>
       </section>
     </div>
@@ -655,14 +662,10 @@
           turf += '<line x1="0" y1="' + FY(y) + '" x2="360" y2="' + FY(y) + '" stroke="#ffffff" stroke-width="1" opacity="0.16"/>';
         }
         turf += '<rect x="0" y="' + (flipped ? 465 : 0) + '" width="360" height="70" fill="#0b2a5b"/>';
-        turf += '<text x="180" y="' + FY(42) + '" text-anchor="middle" font-family="Oswald, sans-serif" font-weight="600" font-size="17" letter-spacing="4" fill="#f2b01e">END ZONE</text>';
+        turf += '<text x="180" y="' + FY(50) + '" text-anchor="middle" font-family="Oswald, sans-serif" font-weight="600" font-size="17" letter-spacing="4" fill="#f2b01e">END ZONE</text>';
         /* first down line */
         turf += '<line x1="0" y1="' + FY(play.fdY) + '" x2="360" y2="' + FY(play.fdY) + '" stroke="#f2b01e" stroke-width="2.4" stroke-dasharray="9 7" opacity="0.95"/>';
         turf += '<text x="' + (flipped ? 8 : 352) + '" y="' + (flipped ? FY(play.fdY) + 16 : play.fdY - 8) + '" text-anchor="' + (flipped ? "start" : "end") + '" font-family="Inter, sans-serif" font-weight="700" font-size="10.5" fill="#f2b01e">FIRST DOWN</text>';
-        /* line of scrimmage */
-        turf += '<line x1="0" y1="' + FY(404) + '" x2="360" y2="' + FY(404) + '" stroke="#ffffff" stroke-width="2.6" opacity="0.9"/>';
-        turf += '<text x="' + (flipped ? 352 : 8) + '" y="' + (flipped ? FY(404) + 15 : 396) + '" text-anchor="' + (flipped ? "end" : "start") + '" font-family="Inter, sans-serif" font-weight="700" font-size="10.5" fill="#ffffff" opacity="0.85">LINE OF SCRIMMAGE</text>';
-
         var routes = "", players = "";
         ACTIVE_SPOTS.forEach(function (spot) {
           var start = { x: FX(FORMATION[spot].x), y: FY(FORMATION[spot].y) };
@@ -694,7 +697,7 @@
           "</g>";
 
         diagramEl.innerHTML =
-          '<svg viewBox="0 25 360 485" role="img" aria-label="Play diagram for ' + play.name + ': the eight players on the field in named circles on the line of scrimmage with arrows showing their routes. Sebas and Ethan are subs on the bench unless subbed in.">' +
+          '<svg viewBox="0 25 360 485" role="img" aria-label="Play diagram for ' + play.name + ': the eight players on the field in named circles with arrows showing their routes. Sebas and Ethan are subs on the bench unless subbed in.">' +
           defs + turf + routes + ballPath + players + ball + "</svg>";
       }
 
@@ -715,8 +718,8 @@
           turf += '<line x1="0" y1="' + FY(y) + '" x2="360" y2="' + FY(y) + '" stroke="#ffffff" stroke-width="1" opacity="0.16"/>';
         }
         turf += '<rect x="0" y="' + (flipped ? 465 : 0) + '" width="360" height="70" fill="#0b2a5b"/>';
-        turf += '<text x="180" y="' + FY(42) + '" text-anchor="middle" font-family="Oswald, sans-serif" font-weight="600" font-size="17" letter-spacing="4" fill="#f2b01e">END ZONE</text>';
-        turf += '<line x1="0" y1="' + FY(404) + '" x2="360" y2="' + FY(404) + '" stroke="#ffffff" stroke-width="2" opacity="0.35"/>';
+        turf += '<text x="180" y="' + FY(50) + '" text-anchor="middle" font-family="Oswald, sans-serif" font-weight="600" font-size="17" letter-spacing="4" fill="#f2b01e">END ZONE</text>';
+
 
         var zones = "", paths = "", players = "";
         ACTIVE_SPOTS.forEach(function (spot) {
@@ -745,7 +748,7 @@
           "</g>";
         var qb =
           '<g transform="translate(' + FX(180) + ',' + FY(478) + ')">' +
-          '<circle r="19" fill="#d63a2f" stroke="#ffffff" stroke-width="2.6"/>' +
+          '<circle r="19" fill="#23272f" stroke="#ffffff" stroke-width="2.6"/>' +
           '<text class="p-name" font-size="11">QB</text>' +
           "</g>";
         var snapSpotD = ballHome();
@@ -1037,12 +1040,14 @@
         function frame(ts) {
           if (startTs === null) startTs = ts;
           var elapsed = ts - startTs;
+          var posMap = {};
           movers.forEach(function (m) {
             if (m.len <= 0) return;
             var t = (elapsed - SNAP - m.delay) / DURATION;
             if (t < 0) t = 0; if (t > 1) t = 1;
             var pt = m.pathEl.getPointAtLength(m.len * easeInOut(t));
             setPlayerPos(m.name, pt.x, pt.y);
+            posMap[m.name] = pt;
           });
           if (ballEl) {
             if (elapsed < SNAP) {
@@ -1091,6 +1096,7 @@
       btnReset.addEventListener("click", resetPositions);
       btnMix.addEventListener("click", mixNames);
       btnSub.addEventListener("click", doSub);
+
       targetSelect.addEventListener("change", function () {
         cancelAnim();
         selectedTarget = targetSelect.value;
@@ -1131,12 +1137,14 @@
       var stageEl = document.getElementById("stage");
       var swipeX = null, swipeY = null;
       stageEl.addEventListener("touchstart", function (e) {
+        if (e.target.closest && e.target.closest(".side")) { swipeX = null; swipeY = null; return; }
         if (e.changedTouches.length === 1) {
           swipeX = e.changedTouches[0].clientX;
           swipeY = e.changedTouches[0].clientY;
         }
       }, { passive: true });
       stageEl.addEventListener("touchend", function (e) {
+        if (e.target.closest && e.target.closest(".side")) { swipeX = null; swipeY = null; return; }
         if (swipeX === null || swipeY === null) return;
         var dx = e.changedTouches[0].clientX - swipeX;
         var dy = e.changedTouches[0].clientY - swipeY;
